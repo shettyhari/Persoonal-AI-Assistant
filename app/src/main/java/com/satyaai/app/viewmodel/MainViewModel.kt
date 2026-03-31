@@ -20,6 +20,7 @@ class MainViewModel @Inject constructor(
 
     private val isLoading = MutableStateFlow(false)
     private val openAiKey = MutableStateFlow("")
+    private val automationHint = MutableStateFlow("")
 
     val messages = repository.messages().stateIn(
         scope = viewModelScope,
@@ -27,8 +28,8 @@ class MainViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    val uiState: StateFlow<ChatUiState> = combine(messages, isLoading, openAiKey) { msgs, loading, key ->
-        ChatUiState(msgs, loading, key)
+    val uiState: StateFlow<ChatUiState> = combine(messages, isLoading, openAiKey, automationHint) { msgs, loading, key, hint ->
+        ChatUiState(msgs, loading, key, hint)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
 
     fun updateKey(key: String) {
@@ -37,6 +38,9 @@ class MainViewModel @Inject constructor(
 
     fun send(text: String) {
         if (text.isBlank() || openAiKey.value.isBlank()) return
+        if (text.startsWith("automation:", ignoreCase = true)) {
+            automationHint.value = "Automation command detected: ${text.removePrefix("automation:").trim()}"
+        }
         viewModelScope.launch {
             isLoading.value = true
             runCatching {
@@ -50,5 +54,6 @@ class MainViewModel @Inject constructor(
 data class ChatUiState(
     val messages: List<ChatMessageEntity> = emptyList(),
     val isLoading: Boolean = false,
-    val openAiKey: String = ""
+    val openAiKey: String = "",
+    val automationHint: String = ""
 )

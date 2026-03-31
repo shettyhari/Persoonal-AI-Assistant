@@ -1,54 +1,42 @@
-# Satya AI (Android)
+# Satya AI Android Application
 
-Satya AI is a Jarvis-like Android assistant built with **Kotlin + Jetpack Compose + MVVM** and powered by the **OpenAI ChatGPT API**.
+Satya AI is a mobile Jarvis-like assistant that combines:
+- OpenAI ChatGPT intelligence
+- Voice commands (`SpeechRecognizer` + `TextToSpeech`)
+- File upload + file-aware prompting
+- Google Workspace integration hooks
+- Phone automation foundations
 
-## Implemented foundation
+## Included screens
+- Splash
+- Google Sign In
+- Home Chat
+- Voice Assistant
+- File Upload
+- Integrations
+- Notes & Reminders
+- Automation
+- Settings
 
-- Voice command flow scaffolding (wake-word UX, `SpeechRecognizer` permissions, transcript to chat).
-- ChatGPT text/voice conversation scaffolding with Room-backed history.
-- File attach + extraction dispatcher for PDF, DOCX, XLSX, PPTX, TXT, images, audio, video, ZIP.
-- Google Workspace integration entry points (OAuth screen + integration module placeholders).
-- Mobile automation module scaffolding (alarms/settings hooks + automation screen).
-- App navigation with requested screens:
-  - Splash
-  - Google Sign In
-  - Home Chat
-  - Voice Assistant
-  - File Upload
-  - Integrations
-  - Notes & Reminders
-  - Automation
-  - Settings
+## Current implementation status
 
-## Tech Stack
+### Working foundation
+- Compose UI + Navigation + dark futuristic style
+- MVVM architecture with Hilt dependency injection
+- Room database for chat history
+- Retrofit OpenAI chat completion call path
+- Voice manager with listen + speak controls
+- File picker and MIME-aware extraction routing
+- Daily summary worker scaffold
 
-- Kotlin
-- Jetpack Compose
-- MVVM
-- Retrofit + Moshi
-- Room
-- WorkManager
-- Hilt DI
-- Android `SpeechRecognizer` + `TextToSpeech`
-- Google Sign-In SDK base dependency
+### TODO for production
+- Backend-proxied OpenAI key exchange (do not keep API keys on device)
+- True streaming response rendering
+- Real parsers for PDF, DOCX, XLSX, PPTX, OCR, audio transcription
+- Google OAuth token exchange + Gmail/Drive/Calendar/Photos API clients
+- Runtime permission UX and automation safety controls
 
-## Setup
-
-1. Open in Android Studio (JDK 17).
-2. Sync Gradle.
-3. Run app on Android 8+ device/emulator.
-4. Add your API key in **Settings screen** at runtime.
-5. For production, move API key handling to a secure backend + token exchange.
-
-## Important production TODOs
-
-- Move OpenAI calls to backend proxy (never ship raw key in client).
-- Implement true streaming responses (SSE/WebSocket).
-- Add real file parsers:
-  - PDFBox / iText for PDF
-  - Apache POI for Office docs
-  - OCR for images
-  - Whisper transcription for audio/video
-- Complete Google OAuth token flow + Gmail/Drive/Calendar/Photos service wrappers.
-- Implement automation actions requiring runtime permissions and OEM-specific handling.
-- Add tests, error handling, encryption, and offline caching.
+## Run locally
+1. `./gradlew assembleDebug`
+2. Install generated APK on Android 8.0+ device/emulator.
+3. Open **Settings** and set OpenAI key for development tests.

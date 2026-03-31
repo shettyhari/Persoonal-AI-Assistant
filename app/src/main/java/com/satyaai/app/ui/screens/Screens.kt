@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
@@ -34,6 +35,7 @@ import com.satyaai.app.data.model.FileAttachment
 import com.satyaai.app.ui.navigation.NavRoutes
 import com.satyaai.app.util.FileTextExtractor
 import com.satyaai.app.viewmodel.MainViewModel
+import com.satyaai.app.voice.VoiceAssistantManager
 
 @Composable
 fun SplashScreen(onDone: () -> Unit) {
@@ -60,6 +62,9 @@ fun HomeChatScreen(vm: MainViewModel, navController: NavController) {
             Button(onClick = { navController.navigate(NavRoutes.Files) }) { Text("Files") }
             Button(onClick = { navController.navigate(NavRoutes.Automation) }) { Text("Automation") }
         }
+        if (state.automationHint.isNotBlank()) {
+            Text(state.automationHint, style = MaterialTheme.typography.bodySmall)
+        }
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(state.messages) { msg ->
                 Text("${msg.role.uppercase()}: ${msg.content}", style = MaterialTheme.typography.bodyMedium)
@@ -82,15 +87,26 @@ fun HomeChatScreen(vm: MainViewModel, navController: NavController) {
 fun VoiceAssistantScreen(vm: MainViewModel) {
     val context = LocalContext.current
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    val voiceManager = remember { VoiceAssistantManager(context) }
     var transcript by remember { mutableStateOf("") }
+
+    DisposableEffect(Unit) {
+        onDispose { voiceManager.release() }
+    }
 
     ScreenContainer(title = "Voice Assistant") {
         Text("Wake word: Hey Satya")
         Button(onClick = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) }) {
             Text("Grant Microphone")
         }
+        Button(onClick = { voiceManager.startListening { transcript = it } }) {
+            Text("Start Listening")
+        }
         OutlinedTextField(value = transcript, onValueChange = { transcript = it }, label = { Text("Voice transcript") })
-        Button(onClick = { vm.send(transcript) }) { Text("Send voice command") }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { vm.send(transcript) }) { Text("Send voice command") }
+            Button(onClick = { voiceManager.speak("I am ready.") }) { Text("Test TTS") }
+        }
         Text("Animated voice wave placeholder")
     }
 }

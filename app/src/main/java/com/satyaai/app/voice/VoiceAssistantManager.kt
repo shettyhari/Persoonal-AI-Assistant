@@ -11,9 +11,15 @@ import java.util.Locale
 
 class VoiceAssistantManager(context: Context) {
     private val speechRecognizer: SpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
-    private val textToSpeech: TextToSpeech = TextToSpeech(context) {
-        if (it == TextToSpeech.SUCCESS) {
-            textToSpeech.language = Locale.US
+    private var ttsReady = false
+    private val textToSpeech: TextToSpeech
+
+    init {
+        textToSpeech = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech.language = Locale.US
+                ttsReady = true
+            }
         }
     }
 
@@ -41,6 +47,14 @@ class VoiceAssistantManager(context: Context) {
     }
 
     fun speak(text: String) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "satya_response")
+        if (ttsReady) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "satya_response")
+        }
+    }
+
+    fun release() {
+        speechRecognizer.destroy()
+        textToSpeech.stop()
+        textToSpeech.shutdown()
     }
 }
